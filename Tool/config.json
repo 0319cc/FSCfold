@@ -1,0 +1,11 @@
+{
+	"gpu": "0",
+	"OUT_STEP": 100,
+	"LOAD_MODEL": true,
+	"rho_per_position": "matrix",
+	"data_type": "rnastralign_all_600",
+	"model_type": "pretrained",
+	"epoches_first": 100, 
+	"step_gamma": 1,
+	"k": 1
+}
