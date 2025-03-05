@@ -1,78 +1,61 @@
 # FSCfold: A Deep Learning Approach for Accurate Prediction of Pseudoknot-Containing RNA Secondary Structures Across Families
 
-## Paper Publication
-
-This article has been published on *Computers in Biology and Medicine* (SCI Q2 Area, IF: 7.70). You can access it in 50 days (will expire on Sep 13, 2023) via the [download link](https://authors.elsevier.com/c/1hStR2OYd3sYA).
-
 ## Prepare for Experiments
 
 Let us spend some time configuring the environment that FSCfold needs.
-
 
 ### Configure conda environment
 
 We provide `environment.txt` files including all the environments that FSCfold depends on.
 
 ```bash
-conda env create -f environment.yml
-source activate rna_ss
-pip install -e .  # install GCNfold module
-```
-
-Some additional packages need to be installed via the `pip` command. We used the <u>Tsinghua mirror source</u> when installing the dgl module. Not sure if this is possible outside of China. However, installing the 0.4.2 version of dgl by other ways should also be suitable.
-
-```bash
-pip install forgi
-pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/dgl-cu100/ package/dgl_cu100-0.4.2-cp37-cp37m-manylinux1_x86_64.whl
+conda create -n FSCfold python=3.11 -y
+conda activate FSCfold
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 ### Data Download
 
-All data used in the experiments have been shared to [Google Drive](https://drive.google.com/drive/folders/1xfzHKbhYtOjyO9umKbHlUH1wAwdmUPRY?usp=sharing).
+All data used in the experiments have been shared to [Google Drive](https://drive.google.com/drive/folders/1JB059ESPbN2QISLZpjOJbRengrc1jNh6?usp=drive_link).
 
-### ArchiveII dataset testing
+Place all test sets and txt files with predictions downloaded from Google Drive into the Dataset folder.
 
-ArchiveII is a dataset for extrapolation prediction. You can download it via [Google Drive](https://drive.google.com/drive/folders/1xfzHKbhYtOjyO9umKbHlUH1wAwdmUPRY?usp=sharing) link. Please put it in the folder `data/archiveII_all`. Run the command below to test. The performance results will be printed on the screen. RNA secondary structures will be stored in the `ct_file` folder in `.ct` file format. You can go through [RNApdbee](http://rnapdbee.cs.put.poznan.pl/) to visualize them.
+
+### Model Evaluating 
+According to the paper, we have placed three `.pt` files in the Models folder. The `RNAStralign.pt` file was trained using the RNAStralign training set, and the results that can be validated include the RNAStralign test set from our paper, the ArchiveII dataset, and the RNAStralign_test_pseu test set containing pseudoknots.
+
+The `TS0.pt` file was trained using the TS0 training set and tested on the TS0 test set.
+
+Finally, to evaluate the cross-family prediction performance of FSCfold, we trained on all datasets except the bpnew dataset to obtain the model parameters for `bpnew.pt` and then tested using the bpnew dataset.
+#### Testing of Model Parameters for RNAStralign.pt
 
 ```bash
-python origin_test.py -c configs/archiveii_test.json
+python FSCfold_test.py --test_files ArchiveII # Testing the ArchiveII Dataset
+python FSCfold_test.py --test_files RNAStralign # Testing the RNAStralign Dataset
+python FSCfold_test.py --test_files RNAStralign_test_pseu # Testing the Pseudoknot  Dataset
 ```
 
-### DIY dataset testing
-
-We also support you in building your own datasets. Please put your data (only `.ct` files are supported) in the `data/raw_data/diy_data` folder. We have stored 10 RNA data under this path in advance for your testing. Then go through the command below to package them into a `.pickle` file.
+#### Testing of Model Parameters for TS0.pt
 
 ```bash
-python preprocess_diy_data.py
+python FSCfold_test.py --test_files TS0 # Testing the ts0 Dataset
 ```
 
-Perhaps you need to remove duplicate data. This will generate a file called `test_no_redundant.pkl` under the `data/diy_data` file.
+#### Testing of Model Parameters for bpnew.pt
 
 ```bash
-python filter_redundant_diy_data.py
+python FSCfold_test.py --test_files bpnew # Testing the bpnew Dataset
 ```
 
-Preparation is complete. Go ahead and test your DIY dataset below.
-
+### Model Predicting
+We welcome you to test our model's predictions. First, you can modify `MODEL_SAVED = Models/bpnew.pt` in the `FSCfold_predict.py` folder to replace it with the training model you would like to use. Additionally, place the one-dimensional RNA sequences you wish to predict into the `input.txt` file in the Dataset folder. The file currently contains three test single-stranded RNA sequences from our paper, and you can directly execute the command below to make predictions. Moreover, you can also store your sequences in this file, and predictions will still be generated. Our model supports parallel predictions for multiple RNA sequences.he prediction results are stored in `.ct` file format in the `Result/save_ct_file` folder. You can convert them to your desired format using `ct2bpseq.py` and `ct2fasta.py` located in the Result folder.
 ```bash
-python diy_data_test.py -c configs/diy_data_test.json
+python FSCfold_predict.py. # Predicting RNA seq
 ```
 
-## Citation
-
-APA format:
-
-Yang, E., Zhang, H., Zang, Z., Zhou, Z., Wang, S., Liu, Z., & Liu, Y. (2023). GCNfold: A novel lightweight model with valid extractors for RNA secondary structure prediction. Computers in Biology and Medicine, 107246.
-
-BibTex format:
-
+### Model DIY Training
+We also provide the model training method. You can create your own training data and generate your `pickle` or `cPickle` files to place them in the Dataset folder. Then, in the `Tool\utill.py` file, add your training set to the `--train_file` parameter within the `get_args` function. The model also incorporates a multi-dataset fusion parallel training method, allowing you to specify multiple parameters for different training sets separated by spaces for your DIY training. Below are the commands to train the model:
 ```bash
-@article{yang2023gcnfold,
-  title={GCNfold: A novel lightweight model with valid extractors for RNA secondary structure prediction},
-  author={Yang, Enbin and Zhang, Hao and Zang, Zinan and Zhou, Zhiyong and Wang, Shuo and Liu, Zhen and Liu, Yuanning},
-  journal={Computers in Biology and Medicine},
-  pages={107246},
-  year={2023},
-  publisher={Elsevier}
-}
+python FSCfold_train.py --train_files Your_dataset_A Your_dataset_B 
+--train_files: optinal parameter, default is all the datasets mentioned in the paper.
 ```
