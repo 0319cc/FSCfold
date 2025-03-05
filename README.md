@@ -1,0 +1,78 @@
+# FSCfold: A Deep Learning Approach for Accurate Prediction of Pseudoknot-Containing RNA Secondary Structures Across Families
+
+## Paper Publication
+
+This article has been published on *Computers in Biology and Medicine* (SCI Q2 Area, IF: 7.70). You can access it in 50 days (will expire on Sep 13, 2023) via the [download link](https://authors.elsevier.com/c/1hStR2OYd3sYA).
+
+## Prepare for Experiments
+
+Let us spend some time configuring the environment that FSCfold needs.
+
+
+### Configure conda environment
+
+We provide `environment.txt` files including all the environments that FSCfold depends on.
+
+```bash
+conda env create -f environment.yml
+source activate rna_ss
+pip install -e .  # install GCNfold module
+```
+
+Some additional packages need to be installed via the `pip` command. We used the <u>Tsinghua mirror source</u> when installing the dgl module. Not sure if this is possible outside of China. However, installing the 0.4.2 version of dgl by other ways should also be suitable.
+
+```bash
+pip install forgi
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/dgl-cu100/ package/dgl_cu100-0.4.2-cp37-cp37m-manylinux1_x86_64.whl
+```
+
+### Data Download
+
+All data used in the experiments have been shared to [Google Drive](https://drive.google.com/drive/folders/1xfzHKbhYtOjyO9umKbHlUH1wAwdmUPRY?usp=sharing).
+
+### ArchiveII dataset testing
+
+ArchiveII is a dataset for extrapolation prediction. You can download it via [Google Drive](https://drive.google.com/drive/folders/1xfzHKbhYtOjyO9umKbHlUH1wAwdmUPRY?usp=sharing) link. Please put it in the folder `data/archiveII_all`. Run the command below to test. The performance results will be printed on the screen. RNA secondary structures will be stored in the `ct_file` folder in `.ct` file format. You can go through [RNApdbee](http://rnapdbee.cs.put.poznan.pl/) to visualize them.
+
+```bash
+python origin_test.py -c configs/archiveii_test.json
+```
+
+### DIY dataset testing
+
+We also support you in building your own datasets. Please put your data (only `.ct` files are supported) in the `data/raw_data/diy_data` folder. We have stored 10 RNA data under this path in advance for your testing. Then go through the command below to package them into a `.pickle` file.
+
+```bash
+python preprocess_diy_data.py
+```
+
+Perhaps you need to remove duplicate data. This will generate a file called `test_no_redundant.pkl` under the `data/diy_data` file.
+
+```bash
+python filter_redundant_diy_data.py
+```
+
+Preparation is complete. Go ahead and test your DIY dataset below.
+
+```bash
+python diy_data_test.py -c configs/diy_data_test.json
+```
+
+## Citation
+
+APA format:
+
+Yang, E., Zhang, H., Zang, Z., Zhou, Z., Wang, S., Liu, Z., & Liu, Y. (2023). GCNfold: A novel lightweight model with valid extractors for RNA secondary structure prediction. Computers in Biology and Medicine, 107246.
+
+BibTex format:
+
+```bash
+@article{yang2023gcnfold,
+  title={GCNfold: A novel lightweight model with valid extractors for RNA secondary structure prediction},
+  author={Yang, Enbin and Zhang, Hao and Zang, Zinan and Zhou, Zhiyong and Wang, Shuo and Liu, Zhen and Liu, Yuanning},
+  journal={Computers in Biology and Medicine},
+  pages={107246},
+  year={2023},
+  publisher={Elsevier}
+}
+```
