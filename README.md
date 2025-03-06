@@ -1,4 +1,4 @@
-# FSCfold: A Deep Learning Approach for Accurate Prediction of Pseudoknot-Containing RNA Secondary Structures Across Families
+# FSCfold: Full-Scale Skip-Connected Deep Learning for Accurate and Efficient RNA Secondary Structure Prediction
 
 ## Prepare for Experiments
 
